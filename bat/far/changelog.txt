@@ -1,0 +1,102 @@
+FAR - Find And Replace
+http://findandreplace.sourceforge.net
+
+Changes to 1.7 (25.02.2013)
++ Save and Load
+	Save and load Find or Replace operations to disk
++ Drag and Drop
+	FAR now supports D&D for files and directories
++ Close Keybord shortcuts
+	Ctrl+W closes any subwindow, Ctrl+Q closes the applications
++ Remember window size
+	File windows (edit/view/preview) remember Dimension
++ Line break info
+	Display line separator type in info view
++ Tools menu
+	Assigning and changing characterset, line breaks and other useful operations
++ Select menu
+	Options for selecting subsets in the file list
++ Selection model for file menu
+	Operate on checked files rather than highlighted files
+
+Changes to 1.6.5 (19.04.2012)
++ Open File/Folder option for found file/s (proposal #2975278)
+	Option added to file list context menu (see known limitations). Requires Java 6 or higher.
++ Copy files
+	Copy files from File menu and context menu
++ Tree Copy
+	Copy files with relative directory tree
+#3468363 error messages not removed on replace
+	the replace command calls now clear on the message sink before execution
+#3468364 content pattern not removed on single file selection
+	single file selection triggers a reset now
+#3276640 regex file nam patterns are case sensitive
+	ignore case flag set
+#3202162 file import with broken file
+	better error messages
+
+Changes to 1.6 (05.02.2011)
++ File renaming
+	Bulk file renaming with or without regex
++ File (popup) menu
+	More file related actions available: move & delete
++ File list import-export
+	Export list of found files or import arbitrary file lists
++ Marker ruler for view and preview
+	The "view" and "preview" window now display matches on a side bar
+#3138221 Unselecting regex file patterns
+	If you encounter any further issues with the regex checkbox under
+	the file pattern dropdown list, please report.
+#3138215 Set cursor to wait status when loading files
+	Candy, easy, done.
+#3138212 First letter of file path cut of
+	A strange issue for a rare case. Fixed
+
+Changes to 1.4 (03-09-2010)
++ Editor
+	Add file editing for quick changes
++ View
+	View reges matches per file
++ Preview
+	Preview effect of replace operations
++ Info
+	Show various file properties
++ Info Column
+	Display essential information in result table
+#2975277 Highlight found text in preview
+	The new and enhanced file view answers this request
+
+Changes to 1.2.1 (11-05-2010)
+#2932261 - Doesn't search all file type
+	Bugfix added
+
+Changes to 1.2 (02-12-2009):
++ Windows executable
+	Big thank you to the LAUNCH4J team! http://launch4j.sourceforge.net
++ Platform packages
+	Specialised packages for Windows and Mac OS X.
++ Sort search result
+	Found files can now be sorted by name or by path
+#2803224 - File name pattern not verified
+	The file name pattern is now validated immmediately
+#2849800 - Add undo functionality to text fields
+	Undo functionality and execution history added to all multi line text fields
+
+Changes to 1.0 (21-07-2009): 
++ Exclude matching files
+	Inverse the content pattern to look for files NOT matching the pattern
+#2818240 - subdirectories always included
+	The "include subdirectories" flag can now be unset
+#2817562 - Out of memory when processing large files
+	Increase support for large files and provide propper error handling 
+#2803856 - show messages in info column
+	Show replacement count and file related error messages in the "info" column
+#2803855 - Avoid recursion
+	Base directory and backup directory can not be nested
+	
+Changes to 0.9.7 (09-06-2009): 
+#2803826 - Could not rename for (temporary) backup.
+	Fixes a problem on Windows when repeatedly creating backups
+
+Changes to 0.9.6 (03-06-2009):
+This is the initial release on sourceforge

@@ -1,0 +1,5 @@
+Flag a comment by adding an ! mark in the note or the initial.  
+Lines containing ! marks will be displayed right before the 
+summary and right before a checkover.  It is useful to flag 
+things that we need to take care of later, or to note finding 
+types of trojans or rootkits for reference, etc.

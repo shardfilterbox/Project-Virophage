@@ -1,0 +1,4 @@
+While running scans in safe mode, don't forget to set the 
+boot.ini to always start in safe mode with networking.  
+That way if anything forces you to reboot, it will not go 
+into normal automatically.

@@ -1,0 +1,12 @@
+FAR - Find And Replace
+
+This program is, as a whole, put under the GNU General Public License version 3
+(or, at your option, any later version). You can find a copy of the GPL v3 along 
+with this document.
+
+This program includes libraries from the Apache Software Foundation (www.apache.org),
+namely commons-logging 1.1 and log4j 1.2.7. These libraries have been published
+under the Apache License 2.0.
+
+Note that parts of the source code of FAR are actually published under the relaxed
+GNU Lesser General Public License (LGPL v3).

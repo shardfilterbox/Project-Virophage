@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+
+  <appender name="D-Bugger" class="org.apache.log4j.ConsoleAppender">
+     <param name="Target" value="System.err"/> 
+     <layout class="org.apache.log4j.PatternLayout">
+          <param name="ConversionPattern" value="%d{HH:mm} %p %c: %m%n"/>
+     </layout>	
+  </appender>
+ 
+   	 <category name="net.pandoragames.far">
+      		<priority value="error"/>
+  	</category>
+ 
+   	 <category name="net.pandoragames.far.ui.swing.FindAndReplace">
+      		<priority value="info"/>
+  	</category>
+ 
+  <root>
+    <priority value ="warn" />
+    <appender-ref ref="D-Bugger"/> 
+  </root>
+
+</log4j:configuration>
+ 
