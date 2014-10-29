@@ -1,9 +1,10 @@
 @echo off
-title Virophage.Setup
 color 4f
+
+echo. set window.name=%~nx0
+echo. CALL header.bat %~nx0
 set Virophage.Source = %~dp0
 if not exist c:\acr\bat\nircmdc.exe xcopy "%Virophage.Source%bat\nircmdc.exe" "c:\acr\bat\*" /dsiy
-c:\acr\bat\nircmdc.exe win setsize ititle "Virophage.Setup" 0 451 400 100
 set virdir=C:\acr\
 set virver=v100
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
@@ -21,8 +22,8 @@ cls
 rem end header
 
 ::Install Chocolatey
-@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
-pause
+if not exist "C:\ProgramData\chocolatey\bin" @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
+if exist "C:\ProgramData\chocolatey\bin" echo Chocolatey already installed
 
 ::Start updates of application files to source
 if exist %Virophage.Source%app\update.server.apps.bat start "Updating Source Files" "%Virophage.Source%app\update.server.apps.bat" else echo Could not update server apps
@@ -43,7 +44,7 @@ echo %date% %time% >%virvar%last.updated.var
 
 
 ::Determine Initialize or Download
-if exist "%~dp0bat\virophage.bat" goto initialize
+if exist "%~dp0bat\virophage.main.window.bat" goto initialize
 echo %~dp0bat\
 goto virdown
 

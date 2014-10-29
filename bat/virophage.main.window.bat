@@ -1,8 +1,11 @@
 ::Sat 06/07/2014  7:27:25.67
 ::start.header 
-::set.virophage
 @echo off
 color 4f
+
+echo. set window.name=%~nx0
+echo. CALL header.bat %~nx0
+
 set Virophage.Source = %~dp0
 if not exist c:\acr\bat\nircmdc.exe xcopy "%Virophage.Source%bat\nircmdc.exe" "c:\acr\bat\*" /dsiy
 if "%path%"=="%path:acr=%" setx path "%path%;c:\acr\bat;c:\acr\app" 
@@ -25,10 +28,6 @@ if not exist %virdir%var md %virdir%var
 if not exist %virdir%bak md %virdir%bak
 for /f "delims=" %%x in (c:\acr\var\os.version.name.var) do set "version=%%x"
 
-::set.window
-C:\acr\bat\nircmdc win setsize ititle "Virophage.Main.Window" 0 0 400 450
-title Virophage.Main.Window
-rem if %windows.mode%=Safe nircmdc win setsize ititle "Virophage.Main.Window" 0 0 
 
 cls
 ::end.header
@@ -37,7 +36,7 @@ start "Log.File" "c:\acr\bat\log.file.bat"
 
 
 ::Start DontSleep
-start "" "C:\acr\app\tls\DontSleep.exe"
+start "" "C:\acr\app\DontSleep.exe" -bg
 
 :CHECKS
 
