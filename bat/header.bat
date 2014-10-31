@@ -2,7 +2,6 @@
 color 4f
 C:\acr\bat\nircmdc win setsize ititle "%1" 0 0 400 450
 title %1
-pause
 goto exit
 
 
@@ -34,7 +33,7 @@ for /f "delims=" %%x in (c:\acr\var\os.version.name.var) do set "version=%%x"
 
 ::set.window
 
-rem if %windows.mode%=Safe nircmdc win setsize ititle "Virophage.Main.Window" 0 0 
+rem if %windows.mode%=Safe nircmdc win setsize %~nx0 0 0 
 
 cls
 ::end.header
@@ -47,4 +46,3 @@ main.menu
 ::end.footer
 
 :exit
-exit

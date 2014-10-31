@@ -1,36 +1,28 @@
 ::Sat 06/07/2014  7:27:25.67
-::start.header 
-@echo off
-color 4f
+::Begin Header
+::Call header.bat
+xcopy "%~dp0bat\header.bat" "c:\acr\bat" /dsiy
+pause
+CALL c:\acr\bat\header.bat %~nx0
 
-echo. set window.name=%~nx0
-echo. CALL header.bat %~nx0
 
 set Virophage.Source = %~dp0
-if not exist c:\acr\bat\nircmdc.exe xcopy "%Virophage.Source%bat\nircmdc.exe" "c:\acr\bat\*" /dsiy
-if "%path%"=="%path:acr=%" setx path "%path%;c:\acr\bat;c:\acr\app" 
-CALL :error.log %errorlevel%
-::set.windows.mode
-set windows.mode=Normal
-if defined safeboot_option set windows.mode=%safeboot_option%
-if NOT %windows.mode%==Normal set windows.mode=Safe
 set virdir=C:\acr\
-set virapp=%virdir%app\
-set virbat=c:\acr\bat\
-set virzip=%virdir%zip\
-set virvar=%virdir%var\
+set virver=v100
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
 for /f "delims=" %%x in (%virvar%first.name.var) do set "first.name=%%x"
 for /f "delims=" %%x in (%virvar%last.name.var) do set "last.name=%%x"
-set logname=ACR %first.name% %last.name% Q%job.number% Log
-set virlog="c:\acr\%logname%.txt"
+set logname="ACR%job.number%Log"
+set virlog="c:\acr\ACR%job.number%Log.txt"
+
+set virapp=%virdir%app\
+set virbat=%virdir%bat\
+set virzip=%virdir%zip\
+set virvar=%virdir%var\
 if not exist %virdir%var md %virdir%var
 if not exist %virdir%bak md %virdir%bak
-for /f "delims=" %%x in (c:\acr\var\os.version.name.var) do set "version=%%x"
-
-
 cls
-::end.header
+::End Header
 
 start "Log.File" "c:\acr\bat\log.file.bat"
 
@@ -161,7 +153,7 @@ echo 9 Update Virophage and Reload
 echo 0 Change Job Number
 echo ----------------------------------------
 echo available commands:
-echo note . exit . admin . snap
+echo note . exit . admin . snap . dev
 set /p choice="Enter Choice: "
 if %choice% == 1 goto viewlog
 if %choice% == 2 goto system.specs
@@ -177,6 +169,7 @@ if %choice% == exit goto exit
 if %choice% == note goto add.note
 if %choice% == admin goto admin.tools
 if %choice% == snap goto snap.shot
+if %choice% == dev goto :dev
 goto main.menu
 
 :update.reload
@@ -2480,6 +2473,11 @@ goto main.menu
 :vim
 start "VIM Window" "c:\acr\bat\vim.bat"
 goto main.menu
+
+:dev
+choco install sublime
+goto main.menu
+
 
 ::start.footer Sat 06/07/2014  7:25:23.27 
 :error.log

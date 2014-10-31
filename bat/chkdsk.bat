@@ -1,24 +1,26 @@
-REM ===== START HEADER =====
-rem @echo off
-color 4f
-title Virophage.Main.Window
-nircmdc win setsize ititle "Virophage.Main.Window" 0 0 550 700
-::set windows mode
-set windows.mode=Normal
-if defined safeboot_option set windows.mode=%safeboot_option%
-if NOT %windows.mode%==Normal set windows.mode=Safe
+::Begin Header
+::Call header.bat
+xcopy "%~dp0bat\header.bat" "c:\acr\bat" /dsiy
+set window.name=%~nx0
+CALL c:\acr\bat\header.bat %~nx0
+
+set Virophage.Source = %~dp0
 set virdir=C:\acr\
+set virver=v100
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
-set logname=ACR%job.number%Log
+for /f "delims=" %%x in (%virvar%first.name.var) do set "first.name=%%x"
+for /f "delims=" %%x in (%virvar%last.name.var) do set "last.name=%%x"
+set logname="ACR%job.number%Log"
+set virlog="c:\acr\ACR%job.number%Log.txt"
+
 set virapp=%virdir%app\
-set virbat=c:\acr\bat\
+set virbat=%virdir%bat\
 set virzip=%virdir%zip\
 set virvar=%virdir%var\
 if not exist %virdir%var md %virdir%var
 if not exist %virdir%bak md %virdir%bak
-for /f "delims=" %%x in (c:\acr\var\os.version.name.var) do set "version=%%x"
 cls
-REM ===== END HEADER =====
+::End Header
 
 chkdsk > c:\acr\log\chkdsk.log
 
