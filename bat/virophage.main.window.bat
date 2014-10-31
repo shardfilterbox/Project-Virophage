@@ -314,6 +314,7 @@ echo installmbamreg >%virvar%resume.var
 if exist "%programfiles(x86)%\Malwarebytes' Anti-Malware\mbam.exe" goto skip.mbam.install
 if exist "%ProgramFiles%\Malwarebytes' Anti-Malware\mbam.exe" goto skip.mbam.install
 if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" goto skip.mbam.install
+if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" goto skip.mbam.install
 %virdir%app\mbam-setup.exe /SP- /SILENT /NOCANCEL
 
 :skip.mbam.install
