@@ -1,5 +1,5 @@
 @echo off
-color 4f
+color 2f
 set virdir=C:\acr\
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
 set logname=ACR%job.number%Log
