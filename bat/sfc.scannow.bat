@@ -1,14 +1,15 @@
 REM ===== START HEADER =====
 @echo off
 color 4f
-title Virophage.Main.Window
-C:\acr\bat\nircmdc win setsize ititle "System File Checker" 0 0 400 450
+xcopy "%~dp0bat\header.bat" "c:\acr\bat" /dsiy
+set window.name=%~nx0
+CALL c:\acr\bat\header.bat %~nx0
 
 ::set windows mode
 set windows.mode=Normal
 if defined safeboot_option set windows.mode=%safeboot_option%
 if NOT %windows.mode%==Normal set windows.mode=Safe
-rem if %windows.mode%=Safe nircmdc win setsize ititle "Virophage.Main.Window" 0 0 
+rem if %windows.mode%=Safe nircmdc win setsize %~nx0 0 0 
 set virdir=C:\acr\
 set virapp=%virdir%app\
 set virbat=c:\acr\bat\

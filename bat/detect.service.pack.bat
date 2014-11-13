@@ -1,6 +1,6 @@
 REM ===== START HEADER =====
 @echo off
-color 17
+color 04
 set virdir=C:\acr\
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
 set logname=ACR%job.number%Log
