@@ -1,6 +1,6 @@
 REM ===== START HEADER =====
 @echo off
-color 17
+color 4f
 set virdir=C:\acr\
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
 set logname=ACR%job.number%Log
@@ -17,10 +17,7 @@ REM ===== END HEADER =====
 
 echo %version%
 
-echo v20 gamma
-echo -fixed malwarebytes installing and looking for v1 instead of v2
-echo -trimmed bloatware so that everything is now useful and speedy
-echo -replaced ninite with chocolatey
+
 echo.
 echo v10.101 beta
 echo -auto run as admin

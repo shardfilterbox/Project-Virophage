@@ -1,6 +1,6 @@
 REM ===== START HEADER =====
 @echo off
-color 2F
+color 4f
 sset virdir=C:\acr\
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
 set logname=ACR%job.number%Log
@@ -35,7 +35,7 @@ echo (necessary for combofix to do it's job)
 echo It may open up in the background so check your taskbar.
 echo.
 echo Opening Chrome for downloading Combofix...
-start /wait FirefoxPortable.exe -private-window http://www.bleepingcomputer.com/download/combofix/dl/12/
+start /wait chrome.exe -incognito --new-window "http://www.bleepingcomputer.com/download/combofix/dl/12/"
 pause
 
 :write.to.log

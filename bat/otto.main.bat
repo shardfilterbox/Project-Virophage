@@ -1,5 +1,5 @@
 @echo off
-color 17
+color 4f
 set Virophage.Source = %~dp0
 xcopy "%Virophage.Source%bat\virophage.header.bat" "c:\acr\bat\" /dsiy
 CALL "c:\acr\bat\virophage.header.bat"
@@ -48,8 +48,18 @@ echo checking RAM...
 if not exist c:\acr\var\ram.var start /wait /min "Detecting RAM" "c:\acr\bat\getram.bat"
 echo (0110) Checked RAM (DATE: %date% %time:~0,-6% USER:%USERNAME% %windows.mode%) >> c:\acr\log\0110.log
 
+::Remove Malware
+start /w wmic product where "name='SafeFinder Smartbar'" call uninstall /nointeractive
+
 ::Remove Bloatware
 start /min /wait "" "c:\acr\bat\bloatware.bat"
+
+::Windows update
+echo Performing windows updates...
+start /min /wait "" "c:\acr\bat\windows.update.bat"
+echo (0110) Performed some windows updates (DATE: %date% %time:~0,-6% USER:%USERNAME% %windows.mode%) >> c:\acr\log\0110.log
+
+
 
 
 exit
