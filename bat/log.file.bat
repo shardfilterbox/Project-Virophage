@@ -10,8 +10,10 @@ set virver=v100
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
 for /f "delims=" %%x in (%virvar%first.name.var) do set "first.name=%%x"
 for /f "delims=" %%x in (%virvar%last.name.var) do set "last.name=%%x"
-set logname="ACR%job.number%Log"
-set virlog="c:\acr\ACR%job.number%Log.txt"
+
+:set.log.name
+set logname=ACR %first.name% %last.name% Q%job.number% Log
+set virlog="c:\acr\%logname%.txt"
 
 set virapp=%virdir%app\
 set virbat=%virdir%bat\
@@ -45,7 +47,7 @@ goto check.for.main
 Timeout 10 >nul
 
 :check.for.main
-TASKLIST /v | find "Virophage.Main.Window" >nul
+TASKLIST /v | find "virophage.main.window.bat" >nul
 IF ERRORLEVEL 1 goto exit
 goto loop
 

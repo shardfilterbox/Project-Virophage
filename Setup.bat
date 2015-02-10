@@ -78,7 +78,7 @@ echo Downloading
 timeout /t 3
 xcopy "%~dp0wget.exe" "%virbat%" /dsiy
 wget -NP c:\acr\ "http://dl.dropbox.com/u/48424618/Virophagev100/bat/Virophage v100.lnk" --no-check-certificate
-wget -NP c:\acr\bat "http://dl.dropbox.com/u/48424618/Virophagev100/bat/virophage.bat" --no-check-certificate
+wget -NP c:\acr\bat "http://dl.dropbox.com/u/48424618/Virophagev100/bat/virophage.main.window.bat" --no-check-certificate
 wget -NP c:\acr\bat "http://dl.dropbox.com/u/48424618/Virophagev100/bat/install.bat" --no-check-certificate
 start "Virophage %virver%" "%virdir%Virophage v100.lnk"
 start "Installing" "%virbat%install.bat"

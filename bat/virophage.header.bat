@@ -23,6 +23,8 @@ set virapp=%virdir%app\
 set virbat=c:\acr\bat\
 set virzip=%virdir%zip\
 set virvar=%virdir%var\
+
+:set.log.name
 set logname=ACR %first.name% %last.name% Q%job.number% Log
 set virlog="c:\acr\%logname%.txt"
 
