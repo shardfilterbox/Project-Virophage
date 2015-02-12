@@ -1,6 +1,7 @@
 ::Sat 06/07/2014  7:27:25.67
 ::Begin Header
 ::Call header.bat
+if not exist "c:\acr\bat\header.bat" xcopy "%~dp0bat\header.bat" "c:\acr\bat\header.bat"
 xcopy "%~dp0bat\header.bat" "c:\acr\bat" /dsiy
 pause
 CALL c:\acr\bat\header.bat %~nx0
