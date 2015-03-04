@@ -1,20 +1,27 @@
-::Sat 06/07/2014  7:27:25.67
+::SOA (2015030201)
+
+::Set Source
+for /f "delims=" %%x in (c:\acr\var\source.var) do set "Virophage.Source=%%x"
+
 ::Begin Header
+
 ::Call header.bat
-if not exist "c:\acr\bat\header.bat" xcopy "%~dp0bat\header.bat" "c:\acr\bat\header.bat"
-xcopy "%~dp0bat\header.bat" "c:\acr\bat" /dsiy
-pause
+if not exist "c:\acr\bat\header.bat" xcopy "%Virophage.Source%bat\header.bat" "c:\acr\bat\header.bat" /dsiy
 CALL c:\acr\bat\header.bat %~nx0
+set window.name=%~nx0
+CALL c:\acr\bat\header.bat %~nx0
+C:\acr\bat\nircmdc win setsize ititle "%~nx0" 0 0 624 600
 
 
-set Virophage.Source = %~dp0
 set virdir=C:\acr\
 set virver=v100
-for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
-for /f "delims=" %%x in (%virvar%first.name.var) do set "first.name=%%x"
-for /f "delims=" %%x in (%virvar%last.name.var) do set "last.name=%%x"
-set logname="ACR%job.number%Log"
-set virlog="c:\acr\ACR%job.number%Log.txt"
+
+::Set Log Name
+for /f "delims=" %%x in (c:\acr\var\job.number.var) do set "job.number=%%x"
+for /f "delims=" %%x in (c:\acr\var\first.name.var) do set "first.name=%%x"
+for /f "delims=" %%x in (c:\acr\var\last.name.var) do set "last.name=%%x"
+set logname=ACR%first.name%%last.name%%job.number%
+set virlog="c:\acr\%logname%.txt"
 
 set virapp=%virdir%app\
 set virbat=%virdir%bat\
@@ -23,27 +30,27 @@ set virvar=%virdir%var\
 if not exist %virdir%var md %virdir%var
 if not exist %virdir%bak md %virdir%bak
 cls
-::End Header
 
+::End Header
 start "Log.File" "c:\acr\bat\log.file.bat"
 
 
 ::Start DontSleep
+if not exist "C:\acr\app\DontSleep.exe" xcopy "%Virophage.Source%\app\DontSleep.exe" "C:\acr\app\DontSleep.exe" /dsiy
 start "" "C:\acr\app\DontSleep.exe" -bg
 
 :CHECKS
 
-if not exist %virvar%job.number.var goto set.job.number
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
-if not exist "c:\acr\var\job.number.var" goto system.specs
+if not exist "c:\acr\var\job.number.var" goto set.job.number
+IF NOT EXIST "%virlog%" goto system.specs
 if not exist "c:\acr\var\os.version.name.var" goto system.specs
 if not exist "c:\acr\var\service.pack.var" goto system.specs
 if not exist "c:\acr\var\ram.var" goto system.specs
 if not exist "c:\acr\var\architecture.var" goto system.specs
-if not exist "c:\acr\var\avtype.var" goto system.specs
+if not exist "c:\acr\var\av.type.var" goto system.specs
 if not exist "c:\acr\var\os.free.space.var" goto system.specs
-if not exist %virvar%resume.var goto skipresume
-if exist %virvar%hdsentinel.percent.var goto skip.hd.health.check
+if not exist "c:\acr\var\resume.var" goto skipresume
+if exist %virvar%hd.status.var goto skip.hd.health.check
 if exist %virvar%hdsentinel.status.var goto skip.hd.health.check
 if exist %virvar%long.hd.diag.var goto skip.hd.health.check
 if exist %virvar%hd.new.var goto skip.hd.health.check
@@ -63,7 +70,6 @@ Please let Shard know that there is no del.autorun.bat
 :done.del.autorun
 
 
-
 :resume
 cls
 
@@ -79,7 +85,7 @@ if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
 if %resume% == finished.hd.health del /f %virvar%resume.var
 if %resume% == finished.hd.health goto CHECKS
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo Would you like to resume from this point?
 echo Y or N 
 set /p choice=
@@ -108,7 +114,7 @@ rem echo.
 rem echo.
 rem echo.
 rem 
-rem if exist %virlog% goto viewlog
+rem if exist "%virlog%" goto viewlog
 
 :main.menu
 :finished.system.specs
@@ -141,7 +147,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo 1 View Log File
 echo 2 System Specs
 echo 3 Installs
@@ -174,8 +180,7 @@ if %choice% == dev goto :dev
 goto main.menu
 
 :update.reload
-if exist "c:\acr\var\alpha.var" "%Virophage.Source%Virophage.Setup.bat"
-if not exist "c:\acr\var\alpha.var" start "Virophage" "c:\acr\Virophage.lnk"
+start "Virophage" "%Virophage.Source%Setup.bat"
 goto exit
 
 
@@ -197,7 +202,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo.
 echo.
 echo.
@@ -222,13 +227,13 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
-if exist %virlog% (
+IF NOT EXIST "%virlog%" goto system.specs
+if exist "%virlog%" (
 echo ---------------
 echo LOG FILE EXISTS
 echo ---------------
 echo.
-type %virlog%
+type "%virlog%"
 )
 
 pause
@@ -245,7 +250,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo.
 echo.
 echo.
@@ -278,14 +283,14 @@ set ver=%ver: =%
 for /f "delims=" %%x in (c:\acr\var\architecture.var)do set "architecture=%%x"
 set architecture=%architecture: =%
 set msever=mse-%ver%-%architecture%
-xcopy "%source%app\%msever%.exe" c:\acr\app\ /s/z/e < c:\acr\bat\n.txt 
+xcopy "%Virophage.Source%app\%msever%.exe" c:\acr\app\ /s/z/e < c:\acr\bat\n.txt 
 cls
 echo Installing MSE.  Please Wait...
 color 04
 start /wait c:\acr\app\%msever%.exe /s /runwgacheck
 color 4f
 echo Done Installing MSE.
-echo (vp) Installed MSE (DATE: %date% %time:~0,-6% USER:new.computer %windows.mode%) >>%virlog%
+echo (vp) Installed MSE (DATE: %date% %time:~0,-6% USER:new.computer %windows.mode%) >>"%virlog%"
 pause
 goto main.menu
 
@@ -341,7 +346,7 @@ goto main.menu
 
 :system.specs
 echo system.specs >%virvar%resume.var
-echo Computer Name:%COMPUTERNAME% >>%virlog%
+echo Computer Name:%COMPUTERNAME% >>"%virlog%"
 cls
 echo ========================================
 echo [%autorunstate%] Virophage Will Start Next Boot
@@ -361,7 +366,7 @@ if not exist "c:\acr\var\os.version.name.var" echo 1 Windows Version
 if not exist "c:\acr\var\service.pack.var" echo 2 Service Pack
 if not exist "c:\acr\var\ram.var" echo 3 Ram
 if not exist "c:\acr\var\architecture.var" echo 4 Architecture
-if not exist "c:\acr\var\avtype.var" echo 6 Antivirus
+if not exist "c:\acr\var\av.type.var" echo 6 Antivirus
 if not exist "c:\acr\var\computer.type.var" echo 7 Laptop or Desktop
 if not exist "c:\acr\var\os.free.space.var" echo 8 Storage Space
 
@@ -369,18 +374,16 @@ if not exist "c:\acr\var\os.free.space.var" echo 8 Storage Space
 echo.
 
 set /p choice="Enter Choice: "
-if %choice% == 1 goto os.version
-if %choice% == 2 goto service.pack
+if %choice% == 0 goto system.specs.job.number
+if %choice% == 1 goto system.specs.os.version
+if %choice% == 2 goto system.specs.service.pack
 if %choice% == 3 goto System.Specs.RAM
-if %choice% == 4 goto architecture
-if %choice% == 6 goto startav
+if %choice% == 4 goto system.specs.architecture
+if %choice% == 6 goto system.specs.av.type
 if %choice% == 7 goto System.Specs.Laptop.AIO.Desktop
-if %choice% == 8 goto storage.space
+if %choice% == 8 goto system.specs.storage.space
 if %choice% == admin goto admin.tools
-echo.>>%virlog%
-echo SYSTEM SPECS (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%)>>%virlog%
-echo ========================================>>%virlog%
-cls
+goto main.menu
 
 echo.
 
@@ -394,11 +397,12 @@ if %choice% == n goto set.job.number
 if %choice% == N goto set.job.number 
 echo Initial
 set /p initial=
-echo (%initial%) Correct Job Number: %job.number% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Correct Job Number: %job.number% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
-:os.version
-echo os.version >%virvar%resume.var
+:system.specs.os.version
+
+echo system.specs.os.version >%virvar%resume.var
 if exist c:\acr\var\os.version.name.var goto skip.os.version
 color 04
 start /wait "Detect OS Version" "c:/acr/bat/detect.os.version.bat"
@@ -409,33 +413,17 @@ for /f "delims=" %%x in (c:/acr/var/os.version.name.var) do set "os.version.name
 for /f "delims=" %%x in (%virvar%os.version.number.var) do set "os.version.number=%%x"
 echo OS Version Name: %os.version.name%
 echo OS Version Number: %os.version.number%
-echo (vp) OS Version Name: %os.version.name% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode% %windows.mode%)>>%virlog%
+echo (vp) OS Version Name: %os.version.name% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode% %windows.mode%)>>"%virlog%"
 
-:service.pack
-echo service.pack >%virvar%resume.var
+:system.specs.service.pack
+echo system.specs.service.pack >%virvar%resume.var
 if exist c:\acr\var\service.pack.var goto skip.service.pack
 color 04
 start /wait "Detect Service Pack" "c:/acr/bat/detect.service.pack.bat"
 :skip.service.pack
 for /f "delims=" %%x in (c:/acr/var/service.pack.var) do set "service.pack=%%x"
-echo (vp) Service Pack %service.pack% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%)>>%virlog%
+echo (vp) Service Pack %service.pack% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%)>>"%virlog%"
 color 4f
-::set servicepack=0
-::FOR /F "tokens=2* delims=	 " %%A IN ('REG QUERY "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CSDversion') DO SET servicepack=%%B
-::set servicepack=%servicepack:~13%
-::echo %servicepack%>%virdir%var\service.pack.var
-
-:::virosp
-::echo virosp >%virvar%resume.var
-::echo Service Pack %servicepack%
-::echo (vp) Services Pack %servicepack% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%)>>%virlog%
-::REM usersp	
-::REM echo The system may not have a service pack installed.
-::REM echo Service Pack?
-::REM set /p answer=
-::REM echo Initial
-::REM set /p initial=
-::REM echo (%initial%) %initial% says Service Pack: %answer% Virophage says Service Pack %servicepack% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
 
 :System.Specs.RAM
 echo System.Specs.RAM >%virvar%resume.var
@@ -445,7 +433,7 @@ color 4f
 
 for /f "delims=" %%x in (%virvar%ram.var) do set "ramtemp=%%x"
 echo Virophage says %ramtemp%
-echo (vp) RAM: %ramtemp%GB (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (vp) RAM: %ramtemp%GB (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -453,9 +441,9 @@ echo.
 
 goto architecture
 
-:architecture
+:system.specs.architecture
 echo.
-echo architecture >%virvar%resume.var
+echo system.specs.architecture >%virvar%resume.var
 set architecture=0
 set architecture=%processor_architecture%
 if %architecture% == 0 goto manarch
@@ -475,7 +463,7 @@ set initial=vp
 
 :reparch
 echo reparch >%virvar%resume.var
-echo (%initial%) Architecture %architecture% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Architecture %architecture% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -483,18 +471,18 @@ echo.
 
 echo %architecture% >%virdir%var\architecture.var
 
-:startav
-echo startav >%virvar%resume.var
+:system.specs.av.type
+echo system.specs.av.type >%virvar%resume.var
 
 echo What AV does the computer have
 if NOT "%processor_architecture%"=="%processor_architecture:32=%" start "" c:\acr\app\CCleaner.exe /tools
 if NOT "%processor_architecture%"=="%processor_architecture:86=%" start "" c:\acr\app\CCleaner.exe /tools
 if NOT "%processor_architecture%"=="%processor_architecture:64=%" start "" c:\acr\app\CCleaner64.exe /tools
 set /p answer=
-echo %answer%>c:\acr\var\avtype.var
+echo %answer%>c:\acr\var\av.type.var
 echo Initial
 set /p initial=
-echo (%initial%) Antivirus %answer% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Antivirus %answer% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -515,23 +503,14 @@ if %lapordesk% == 2 set lapordesk=desktop
 echo %lapordesk% > c:\acr\var\computer.type.var
 echo Initial
 set /p lapordeskini=
-echo (%lapordeskini%) %lapordesk% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%lapordeskini%) %lapordesk% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
 echo.
 
-:storage.space
-echo storage.space >%virvar%resume.var
-
-rem echo list disk | diskpart
-rem echo DISC MANAGEMENT
-rem echo Size of Hard Drive(s) in gb?
-rem set /p answer=
-rem echo Initial
-rem set /p initial=
-rem echo (%initial%) Hard Drive Size %answer% gb (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
-rem cls
+:system.specs.storage.space
+echo system.specs.storage.space >%virvar%resume.var
 
 echo Starting Disk Management for OS 
 echo Partitions size and free space
@@ -544,7 +523,7 @@ echo Windows partion is C:)
 
 echo Initial
 set /p initial=
-echo (%initial%) Disc Management(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Disc Management(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 ::for /f "tokens=3,6,7 delims= " %%a in ('echo list volume ^| diskpart') do if "%%a"=="C" set size=%%b && set size2=%%c
@@ -566,18 +545,8 @@ set/p ossize=
 echo Initial
 set /p ossizeini=
 echo %ossize% > %virvar%ossize.var
-echo (%ossizeini%) OS Size %ossize%gb >>%virlog%
+echo (%ossizeini%) OS Size %ossize%gb >>"%virlog%"
 
-
-::wmic logicaldisk where "DeviceID='C:'" get FreeSpace /format:value > c:\acr\var\temp.free.space.var
-::wmic logicaldisk where "DeviceID='C:'" get Size /format:value > c:\acr\var\temp.full.size.var
-::for /f "delims=" %%f in (%virvar%temp.free.space.var) do set "FreeMB=%%f"
-::for /f "delims=" %%t in (%virvar%temp.full.size.var) do set "SizeMB=%%t"
-
-::set FreeMB=%FreeSpace:~0,-6%
-::set SizeMB=%Size:~0,-6%
-::set /a Percentage=100 * FreeMB / SizeMB
-::echo C: is %Percentage% % free
 echo.
 
 echo Percent Free?
@@ -589,24 +558,24 @@ echo %percentfree% > %virvar%os.free.space.var
 
 echo Initial
 set /p initial=
-echo (%initial%) Percent Free %percentfree% % (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >> %virlog%
+echo (%initial%) Percent Free %percentfree% % (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >> "%virlog%"
 echo.
 
 
 echo finished.system.specs >%virvar%resume.var
-if not exist %virvar%hdsentinel.percent.var goto hd.health
+if not exist %virvar%hd.status.var goto hd.health
 goto finished.system.specs
 
 
 :safe.mode.first.aid
 echo safe.mode.first.aid >%virvar%resume.var
-echo. >>%virlog%
-echo SAFE MODE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
-echo ======================================== >>%virlog%
+echo. >>"%virlog%"
+echo SAFE MODE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
+echo ======================================== >>"%virlog%"
 start /min c:\acr\bat\first.aid.mbam.bat
 start /min otto.first.aid.safe.mode.bat
 
-IF NOT EXIST %virlog% goto main.menu
+IF NOT EXIST "%virlog%" goto main.menu
 cls
 echo ========================================
 echo [%autorunstate%] Virophage Will Start Next Boot
@@ -616,7 +585,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo.
 echo Starting Point?
 echo 1 Beginning
@@ -666,7 +635,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo.
 echo.
 echo.
@@ -683,7 +652,7 @@ echo Was a system restore
 echo successfully performed?
 echo Initial
 set /p initial=
-echo (%initial%) System Restore (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) System Restore (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 :safe.mode.boot.ini
@@ -692,7 +661,7 @@ echo Did you modify the boot.ini for Safe Mode with Networking?
 start msconfig -2
 echo Initial
 set /p initial=
-echo (%initial%) Boot.ini Safe Mode w/ Networking (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Boot.ini Safe Mode w/ Networking (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 
@@ -705,7 +674,7 @@ set name=Ccleaner
 if NOT "%processor_architecture%"=="%processor_architecture:32=%" start "" c:\acr\app\CCleaner.exe /AUTO
 if NOT "%processor_architecture%"=="%processor_architecture:86=%" start "" c:\acr\app\CCleaner.exe /AUTO
 if NOT "%processor_architecture%"=="%processor_architecture:64=%" start "" c:\acr\app\CCleaner64.exe /AUTO
-echo (vp) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (vp) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 :stfc
@@ -718,7 +687,7 @@ xcopy "%Virophage.Source%app\tfc.exe" "%virapp%" /dsiy
 
 :tfc.exist
 %virapp%tfc.exe --nogui --log="c:\ACR\log\safetfc.txt"
-echo (vp) TFC (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >> %virlog%
+echo (vp) TFC (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >> "%virlog%"
 
 :sinet
 echo sinet >%virvar%resume.var
@@ -729,7 +698,7 @@ echo Advanced > Restore Advanced Settings and Reset, deleting personal Settings.
 inetcpl.cpl
 echo Please initial
 set /p initial=
-echo (%initial%) Reset Internet and LAN Settings  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Reset Internet and LAN Settings  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 echo.
@@ -767,7 +736,7 @@ echo Were there any errors? let shard know
 echo and/or restore defaults yourself.
 echo Please initial
 set /p initial=
-echo (%initial%) Reset firewall settings (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Reset firewall settings (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -805,21 +774,25 @@ set KEY=BW8B-RB28-FWVL-GX09
 
 if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" "%ProgramFiles%\Malwarebytes' Anti-Malware\mbam.exe" /register 5GV24-T8P9P BW8B-RB28-FWVL-GX09
 if exist "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" /register 5GV24-T8P9P BW8B-RB28-FWVL-GX09
+if exist "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" /register 5GV24-T8P9P BW8B-RB28-FWVL-GX09
+
 
 
 ::Update MBAM
 if exist "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" start /wait "MBAM" "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" /runupdate
 if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" start /wait "MBAM" "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" /runupdate
+if exist "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" start /wait "MBAM" "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" /runupdate
 
 ::Run RKILL and MBAM quick
 %virapp%rkill.com
 if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" start "" "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" /quickscan
 if exist "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" start "" "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" /quickscan
+if exist "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" start "" "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" /quickscan
 
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 if exist "%userprofile%\Application Data\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" xcopy "%userprofile%\Application Data\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" "c:\acr\log\*" /dsiy
 if exist "%userprofile%\AppData\Roaming\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" xcopy "%userprofile%\AppData\Roaming\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" "c:\acr\log\*" /dsiy
@@ -841,7 +814,7 @@ set name=SAS
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -866,7 +839,7 @@ if exist "C:\Program Files (x86)\Spybot - Search & Destroy\SpybotSD.exe" start "
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -881,7 +854,7 @@ set name=eset
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -922,7 +895,7 @@ goto shitmanpro
 echo Did Hitman Pro finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) Hitman Pro (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Hitman Pro (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 xcopy C:\ProgramData\HitmanPro\Logs c:\acr\log\hitman /dsiy
 cls
 
@@ -942,7 +915,7 @@ if not exist c:\acr\log md c:\ACR\log
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -956,7 +929,7 @@ echo AUTORUNS
 echo Did you run autoruns?
 echo Please initial
 set /p initial=
-echo (%initial%) Autoruns  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Autoruns  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -971,7 +944,7 @@ echo HIJACKTHIS
 echo Did you go over the hijack this log?
 echo Please initial
 set /p initial=
-echo (%initial%) HijackThis  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) HijackThis  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -987,7 +960,7 @@ start /wait %virbat%cleanup.firstaid.bat
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 :safe.mode.sfc
 echo safe.mode.sfc >%virvar%resume.var
@@ -996,7 +969,7 @@ start /wait "" "c:\acr\bat\sfc.scannow.lnk"
 echo Did SFC finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) System File Check  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) System File Check  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 :smsconfig
 echo smsconfig >%virvar%resume.var
@@ -1005,7 +978,7 @@ start msconfig
 echo Did you change msconfig to Normal Startup?
 echo Please initial
 set /p initial=
-echo (%initial%) MSConfig  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) MSConfig  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1015,8 +988,8 @@ echo.
 
 
 
-echo SAFE MODE DONE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
-echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>>%virlog%
+echo SAFE MODE DONE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
+echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>>"%virlog%"
 echo safe.mode.done >%virvar%resume.var
 echo We will now reboot into normal mode
 pause
@@ -1028,11 +1001,11 @@ goto main.menu
 echo normal.mode.first.aid >%virvar%resume.var
 
 echo NORMAL MODE
-echo.>>%virlog%
-echo NORMAL MODE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
-echo ========================================>>%virlog%
+echo.>>"%virlog%"
+echo NORMAL MODE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
+echo ========================================>>"%virlog%"
 
-IF NOT EXIST %virlog% goto main.menu
+IF NOT EXIST "%virlog%" goto main.menu
 
 cls
 echo ========================================
@@ -1043,7 +1016,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo.
 echo.
 echo.
@@ -1084,7 +1057,7 @@ if %choice% == 4.5 goto normal.mode.JRT
 if %choice% == 5 goto ninet
 if %choice% == 6 goto nfirewall
 if %choice% == 7 goto normal.mode.combofix
-if %choice% == 8 goto nmbam
+if %choice% == 8 goto normal.mode.mbam
 if %choice% == 9 goto nsas
 if %choice% == 10 goto nspybot
 if %choice% == 11 goto neset
@@ -1110,7 +1083,7 @@ echo Invoice #: %job.number%
 
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo.
 echo.
 echo.
@@ -1124,7 +1097,7 @@ echo Is the boot.ini set to start in Normal Mode?
 start msconfig -2
 echo Initial
 set /p initial=
-echo (%initial%) Msconfig set to NORMAL MODE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Msconfig set to NORMAL MODE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1137,7 +1110,7 @@ set name=Ccleaner
 if NOT "%processor_architecture%"=="%processor_architecture:32=%" start "" c:\acr\app\CCleaner.exe /AUTO
 if NOT "%processor_architecture%"=="%processor_architecture:86=%" start "" c:\acr\app\CCleaner.exe /AUTO
 if NOT "%processor_architecture%"=="%processor_architecture:64=%" start "" c:\acr\app\CCleaner64.exe /AUTO
-echo (vp) CCleaner >> %virlog%
+echo (vp) CCleaner >> "%virlog%"
 echo.
 
 
@@ -1147,7 +1120,7 @@ set name=Runtime Updates
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1163,7 +1136,7 @@ xcopy "%Virophage.Source%app\tfc.exe" "%virapp%" /dsiy
 
 :ntfc.exist
 %virapp%tfc.exe --nogui --log="c:\ACR\log\normaltfc.txt"
-echo (vp) TFC (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >> %virlog%
+echo (vp) TFC (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >> "%virlog%"
 
 
 cls
@@ -1196,7 +1169,7 @@ inetcpl.cpl
 echo Did you reset internet Settings (delete personal settings for first aid virus)?
 echo Please initial
 set /p initial=
-echo (%initial%) Reset Internet Settings  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Reset Internet Settings  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1227,7 +1200,7 @@ rem	)
 echo Were there any errors? let shard know and/or restore defaults yourself.
 echo Please initial
 set /p initial=
-echo (%initial%) Reset firewall settings (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Reset firewall settings (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1245,32 +1218,36 @@ echo.
 echo.
 echo.
 
-:nmbam
-echo nmbam >%virvar%resume.var
+:normal.mode.mbam
+echo normal.mode.mbam >%virvar%resume.var
 echo MALWARE BYTES
 set name=Malware Bytes
 
 ::Check if MBAM exists
 if exist "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" goto normal.mode.skip.mbam.install
 if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" goto normal.mode.skip.mbam.install
+if exist "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" goto normal.mode.skip.mbam.install
 
 ::Install MBAM
 %virdir%app\mbam-setup.exe /SP- /SILENT /NOCANCEL
 :normal.mode.skip.mbam.install
 
 ::Update MBAM
-if exist "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" /updateshowdialog
-if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" /updateshowdialog
+if exist "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" start "" "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" /updateshowdialog
+if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" start "" "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" /updateshowdialog
+if exist "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" start "" "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" /updateshowdialog
 
 ::Run RKILL and MBAM quick
 %virapp%rkill.com
 if exist "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" start "" "C:\Program Files\Malwarebytes' Anti-Malware\mbam.exe" /quickscan
 if exist "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" start "" "C:\Program Files (x86)\Malwarebytes' Anti-Malware\mbam.exe" /quickscan
+if exist "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" start "" "C:\Program Files (x86)\Malwarebytes Anti-Malware\mbam.exe" /quickscan
+
 
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 if exist "%userprofile%\Application Data\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" xcopy "%userprofile%\Application Data\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" "c:\acr\log\*" /dsiy
 if exist "%userprofile%\AppData\Roaming\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" xcopy "%userprofile%\AppData\Roaming\Malwarebytes\Malwarebytes' Anti-Malware\Logs\*" "c:\acr\log\*" /dsiy
@@ -1290,7 +1267,7 @@ set name=SAS
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1315,7 +1292,7 @@ if exist "C:\Program Files (x86)\Spybot - Search & Destroy\SpybotSD.exe" start "
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 if exist "%allusersprofile%\Application Data\Spybot - Search & Destroy\Logs\*" xcopy "%userprofile%\Application Data\Spybot - Search & Destroy\Logs\*" "c:\acr\log\*" /dsiy
@@ -1335,7 +1312,7 @@ set name=eset
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 :nhitmanpro
@@ -1377,7 +1354,7 @@ echo passnhitmanpro >%virvar%resume.var
 echo Did Hitman Pro finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) Hitman Pro  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Hitman Pro  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 xcopy C:\ProgramData\HitmanPro\Logs c:\acr\log\hitman /dsiy
 
 cls
@@ -1398,7 +1375,7 @@ md c:\ACR\log
 echo Did TDSSKiller finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) TDSSKiller  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) TDSSKiller  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1416,7 +1393,7 @@ echo using other methods like Autoruns and Hijackthis!
 echo.
 echo Please initial
 set /p initial=
-echo (%initial%) MSConfig  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) MSConfig  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1431,7 +1408,7 @@ echo AUTORUNS
 echo Did you run autoruns?
 echo Please initial
 set /p initial=
-echo (%initial%) Autoruns  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Autoruns  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1446,7 +1423,7 @@ echo HIJACKTHIS
 echo Did you go over the hijack this log?
 echo Please initial
 set /p initial=
-echo (%initial%) HijackThis  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) HijackThis  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1464,7 +1441,7 @@ if NOT "%processor_architecture%"=="%processor_architecture:64=%" start "" c:\ac
 echo Did you remove common bloatware?
 echo Please initial
 set /p initial=
-echo (%initial%) Remove Bloatware  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Remove Bloatware  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1479,7 +1456,7 @@ echo Immunize with Spybot
 echo Did you immunize with spybot?
 echo Please initial
 set /p immunizeini=
-echo (%immunizeini%) Immunize with Spybot (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%immunizeini%) Immunize with Spybot (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 ::log preview start
 cls
 
@@ -1499,7 +1476,7 @@ color 4f
 echo Did Ninite Updates finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) Ninite Updates  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Ninite Updates  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1513,7 +1490,7 @@ start registry.bat
 echo Did you clean the registry?
 echo Please initial
 set /p initial=
-echo (%initial%) CCleaner Registry Fix (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) CCleaner Registry Fix (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1528,7 +1505,7 @@ color 4f
 echo Did you install Web of Trust on all browsers?
 echo Please initial
 set /p initial=
-echo (%initial%) Web of Trust (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Web of Trust (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 :normal.mode.adblockers
@@ -1540,7 +1517,7 @@ color 4f
 echo Did you install AdBlockers?
 echo Please initial
 set /p initial=
-echo (%initial%) AdBlockers (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) AdBlockers (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 :firefox.proxy
@@ -1554,7 +1531,7 @@ echo Did you check for malicious Firefox
 echo proxy settings?
 echo Please initial
 set /p initial=
-echo (%initial%) Firefox Proxy (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Firefox Proxy (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 :arbiter virus
@@ -1563,22 +1540,22 @@ echo Did you check the user library for
 echo hidden data (arbiter virus)?
 echo Please initial
 set /p initial=
-echo (%initial%) Arbiter Virus (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Arbiter Virus (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 
 ::finished.first.aid
-echo NORMAL MODE DONE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
-echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>>%virlog%
+echo NORMAL MODE DONE (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
+echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>>"%virlog%"
 echo finished.first.aid >%virvar%resume.var
 goto main.menu
 
 
 :fresh.reload
 echo fresh.reload >%virvar%resume.var
-echo.>>%virlog%
-echo FRESH RELOAD>>%virlog%
-echo ========================================>>%virlog%
+echo.>>"%virlog%"
+echo FRESH RELOAD>>"%virlog%"
+echo ========================================>>"%virlog%"
 echo.
 echo 1 Activate Windows
 echo 2 Drivers
@@ -1602,6 +1579,7 @@ if %fresh% == 8 goto fresh.reload.battery.tray.utility
 goto main.menu
 
 :fresh.reload.activate
+fresh.reload.activate >%virvar%resume.var
 echo.
 echo Fresh Reload
 echo FRESH RELOAD
@@ -1621,18 +1599,18 @@ start /wait "" "slui.exe"
 echo Did you activate Windows?
 echo Please initial
 set /p initial=
-echo (%initial%) Windows activated (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Windows activated (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 :fresh.reload.drivers
 echo fresh.reload.drivers >%virvar%resume.var
 echo.
 echo Opening Device Manager (devmgmt.msc)
-start /wait "" "devmgmt.msc"
+start "" "devmgmt.msc"
 echo Did you install all of the drivers?
 echo Please initial
 set /p initial=
-echo (%initial%) Drivers  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Drivers  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 :fresh.reload.ninite
@@ -1645,7 +1623,7 @@ start %virbat%cleanup.freshreload.bat
 echo Did %name% finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1658,7 +1636,7 @@ xcopy "c:\acr\bat\Try Dropbox free!.url" "%allusersprofile%\desktop\*" /siy
 xcopy "c:\acr\bat\Try Dropbox free!.url" "%public%\desktop\*" /siy
 regedit /s c:/acr/bat/reg/xp.desktop.items.reg
 regedit /s c:/acr/bat/reg/addcomputeranduserfoldertodesktop.reg
-echo (vp) Placed My Computer and User Folder/My Documents on Desktop (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (vp) Placed My Computer and User Folder/My Documents on Desktop (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 echo Placed My Computer, IE, and User Folder/My Documents on Desktop (Click the desktop and press F5 to refresh the desktop and see the changes)
 xcopy "c:\acr\bat\lnk\Internet Explorer.lnk" "%allusersprofile%\desktop\*" /siy
 
@@ -1681,7 +1659,7 @@ color 4f
 echo Did you install AdBlockers?
 echo Please initial
 set /p initial=
-echo (%initial%) AdBlockers (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) AdBlockers (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 
@@ -1712,7 +1690,7 @@ rem if exist "%programfiles(x86)%\Malwarebytes' Anti-Malware\mbam.exe" "%program
 rem 
 rem echo Malware Bytes ID: %ID%  Key: %KEY% >%virvar%mbam.var
 rem for /f "delims=" %%x in (%virvar%mbam.var) do set "mbam.key.license=%%x"
-rem echo (vp) %mbam.key.license% (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+rem echo (vp) %mbam.key.license% (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 rem echo finished.fresh.reload >%virvar%resume.var
 rem */
 
@@ -1725,7 +1703,7 @@ echo When you plug and unplug the charger
 echo does the icon change accordingly?
 echo Please initial
 set /p initial=
-echo (%initial%) Battery Tray Utility (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Battery Tray Utility (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 echo finished.fresh.reload >%virvar%resume.var
@@ -1736,15 +1714,16 @@ goto main.menu
 
 :new.computer
 echo new.computer >%virvar%resume.var
-echo.>>%virlog%
-echo NEW COMPUTER>>%virlog%
-echo ========================================>>%virlog%
+echo.>>"%virlog%"
+echo NEW COMPUTER>>"%virlog%"
+echo ========================================>>"%virlog%"
 echo.
 echo 1 Activate Windows
 echo 2 Drivers
 echo 3 Ninite Updates
 echo 4 Desktop Links
 echo 5 Install Wot
+echo 6 Install Ablock Plus
 
 set /p fresh="Enter Choice: "
 if %fresh% == 1 goto new.computer.activate
@@ -1752,6 +1731,7 @@ if %fresh% == 2 goto new.computer.drivers
 if %fresh% == 3 goto new.computer.ninite
 if %fresh% == 4 goto new.computer.desktop.links
 if %fresh% == 5 goto new.computer.install.wot
+if %fresh% == 6 goto new.computer.install.adblockers
 goto main.menu
 
 :new.computer.activate
@@ -1773,7 +1753,7 @@ start /wait "" "slui.exe"
 echo Did you activate Windows?
 echo Please initial
 set /p initial=
-echo (%initial%) Windows activated (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Windows activated (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 :new.computer.drivers
@@ -1784,7 +1764,7 @@ start /wait "" "devmgmt.msc"
 echo Did you install all of the drivers?
 echo Please initial
 set /p initial=
-echo (%initial%) Drivers  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Drivers  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 :new.computer.ninite
@@ -1804,7 +1784,7 @@ start %virbat%bloatware.bat
 echo Did Ninite Updates finish completely?
 echo Please initial
 set /p initial=
-echo (%initial%) Ninite Updates  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Ninite Updates  (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1816,7 +1796,7 @@ echo new.computer.desktop.links >%virvar%resume.var
 
 regedit /s c:/acr/bat/reg/xp.desktop.items.reg
 regedit /s c:/acr/bat/reg/addcomputeranduserfoldertodesktop.reg
-echo (vp) Placed My Computer and User Folder/My Documents on Desktop (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (vp) Placed My Computer and User Folder/My Documents on Desktop (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 echo Placed My Computer, IE, and User Folder/My Documents on Desktop (Click the desktop and press F5 to refresh the desktop and see the changes)
 xcopy "c:\acr\bat\lnk\Internet Explorer.lnk" "%allusersprofile%\desktop\*" /siy
 
@@ -1828,6 +1808,18 @@ echo Web of Trust
 color 04
 start /wait "" "c:\acr\bat\installwot.bat"
 color 4f
+
+:new.computer.install.adblockers
+echo new.computer.install.adblockers >%virvar%resume.var
+echo Ad Blockers
+color 04
+start "" "c:\acr\bat\install.adblockers.bat"
+color 4f
+echo Did you install AdBlockers?
+echo Please initial
+set /p initial=
+echo (%initial%) AdBlockers (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
+cls
 
 
 echo finished.new.computer >%virvar%resume.var
@@ -1844,7 +1836,7 @@ goto finished.new.computer
 echo checkover >%virvar%resume.var
 
 
-IF NOT EXIST %virlog% goto main.menu
+IF NOT EXIST "%virlog%" goto main.menu
 
 echo ========================================
 echo [%autorunstate%] Virophage Will Start Next Boot
@@ -1854,13 +1846,13 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 
 echo Make sure all problems of job are addressed? (Signed off by an officer)
 set name=Make sure all problems of job are addressed
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 
@@ -1870,7 +1862,7 @@ type "%virdir%%logname%.txt" | find "!"
 ECHO HAVE WE ADDRESSED ALL OF THESE?
 echo Initial:
 set /p initial=
-echo (%initial%) Flags addressed (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Flags addressed (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1889,7 +1881,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo Starting Point?
 echo.
 echo.
@@ -1919,12 +1911,12 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo CHECKOVER
 echo.
-echo.>>%virlog%
-echo CHECKOVER (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
-echo ========================================>>%virlog%
+echo.>>"%virlog%"
+echo CHECKOVER (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
+echo ========================================>>"%virlog%"
 cls
 
 echo.
@@ -1937,7 +1929,7 @@ echo TASK MANAGER
 echo Go to the processes tab in Task Manager. Make sure the computer will idle below 10% cpu usage before initialing to continue
 echo Initial:
 set /p initial=
-echo (%initial%) Task Manager idles below 10% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Task Manager idles below 10% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 :latest.service.pack
@@ -1952,7 +1944,7 @@ echo EVENTVIEWER
 echo Are there any large chunks of error messages (10 or so) that we need to address?
 echo If no, then initial, else explain
 set /p initial=
-echo (%initial%) Eventviewer(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Eventviewer(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1965,7 +1957,7 @@ start "" "devmgmt.msc"
 set name=Drivers
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1976,7 +1968,7 @@ echo At least IE8?
 set name=IE8
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -1988,7 +1980,7 @@ echo check.over.office >%virvar%resume.var
 echo Please open an office document to verify it is working.
 echo Please initial
 set /p initial=
-echo (%initial%) Verify Office (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Verify Office (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 :check.over.one.office
@@ -1996,7 +1988,7 @@ echo check.over.one.office >%virvar%resume.var
 echo Please verify that there is only 1 version of office installed.
 echo Please initial
 set /p initial=
-echo (%initial%) Only 1 Office Installation (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Only 1 Office Installation (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 
@@ -2004,14 +1996,14 @@ echo Ethernet?
 set name=Ethernet
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
 echo.
 echo.
 
-type %virlog% | find "desktop" >nul
+type "%virlog%" | find "desktop" >nul
 if errorlevel 1 goto wifiyes
 echo wifi skipped (desktop)
 goto skipwifi
@@ -2021,7 +2013,7 @@ echo Wifi?
 set name=Wifi
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -2031,7 +2023,7 @@ echo.
 echo skipwifi >%virvar%resume.var
 
 
-type %virlog% | find "desktop" >nul
+type "%virlog%" | find "desktop" >nul
 if errorlevel 1 goto camyes
 echo Webcam skipped (desktop)
 goto skipcam
@@ -2042,7 +2034,7 @@ start chrome.exe -incognito --new-window "http://www.allthingsinc.com/tek/test-w
 set name=Webcam
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -2051,7 +2043,7 @@ echo.
 :skipcam
 echo skipcam >%virvar%resume.var
 
-type %virlog% | find "desktop" >nul
+type "%virlog%" | find "desktop" >nul
 if errorlevel 1 goto micyes
 echo Mic skipped (desktop)
 goto skipmic
@@ -2061,7 +2053,7 @@ echo Mic?
 set name=Mic
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -2083,14 +2075,14 @@ echo autoplay.dvd >%virvar%resume.var
 set name=Autoplays DVD
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
 echo.
 echo.
 
-type %virlog% | find "desktop" >nul
+type "%virlog%" | find "desktop" >nul
 if errorlevel 1 goto audioyes
 echo Audio skipped (desktop)
 goto skipaudio
@@ -2100,7 +2092,7 @@ echo Audio (laptops only)?
 set name=Audio
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -2109,7 +2101,7 @@ echo.
 :skipaudio
 echo skipaudio >%virvar%resume.var
 
-type %virlog% | find "desktop" >nul
+type "%virlog%" | find "desktop" >nul
 if errorlevel 1 goto fnyes
 echo Functions keys skipped (desktop)
 goto skipfn
@@ -2119,7 +2111,7 @@ echo FN Keys and Extra Palmrest Buttons are functional?
 set name=FN Keys and Extra Buttons
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -2132,14 +2124,14 @@ echo Time and Date are correct?
 set name=Time and Date
 echo Initial
 set /p timeini=
-echo (%timeini%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%timeini%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo Clean up desktop, remove any icons added by us?
 set name=Clean up desktop, remove any icons added by us
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -2152,7 +2144,7 @@ echo Please verify that hiddens files are in
 echo fact hidden
 echo Please initial
 set /p initial=
-echo (%initial%) Hide Hidden Files (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Hide Hidden Files (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 
@@ -2163,7 +2155,7 @@ echo Check CD Player for company discs?
 set name=Check CD Player for company discs
 echo Initial
 set /p initial=
-echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) %name%(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
 echo.
@@ -2177,7 +2169,7 @@ echo Please verify the data and apps noted
 echo by the customer on the checkin form.
 echo Please initial
 set /p initial=
-echo (%initial%) Verify User Data and Apps (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) Verify User Data and Apps (DATE: %date% %time:~0, -6% USER:"%username%" %windows.mode%) >>"%virlog%"
 
 
 :essential
@@ -2193,11 +2185,11 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo ESSENTIAL 4
 echo.
 echo.
-echo ===============ESSENTIAL 4=============== >>%virlog%
+echo ===============ESSENTIAL 4=============== >>"%virlog%"
 pause
 
 cls
@@ -2213,7 +2205,7 @@ SET /P adequateram=
 echo Initial (Adequate RAM or customer knows there is less than recommended RAM)
 set /p endRAMini=
 set /p ram=<%virvar%ram.var
-echo (%endRAMini%) Adequate RAM? %adequateram% Current Ram: %ram% >> %virlog%
+echo (%endRAMini%) Adequate RAM? %adequateram% Current Ram: %ram% >> "%virlog%"
 echo.
 
 for /f "delims=" %%x in (%virvar%os.free.space.var) do set "os.free.space=%%x"
@@ -2222,7 +2214,7 @@ echo %os.free.space% %%
 echo Is there at least 10% free space on the OS drive?
 echo Initial
 set /p initial=
-echo (%initial%) Percent Free: %os.free.space% %% >>%virlog%
+echo (%initial%) Percent Free: %os.free.space% %% >>"%virlog%"
 cls
 
 echo.
@@ -2234,8 +2226,8 @@ echo Initial
 set /p avini=
 echo What type(s) of Malware or Virus protection is present?
 set /p avtype=
-echo %avtype%>c:\acr\var\avtype.var
-echo (%avini%) AntiVirus: %avtype% >>%virlog%
+echo %avtype%>c:\acr\var\av.type.var
+echo (%avini%) AntiVirus: %avtype% >>"%virlog%"
 cls
 
 echo.
@@ -2247,7 +2239,7 @@ set /p backup=
 echo %backup%>c:\acr\var\backup.system.var
 echo Initial
 set /p backupini=
-echo (%backupini%) Backup System: %backup% >>%virlog%
+echo (%backupini%) Backup System: %backup% >>"%virlog%"
 cls
 
 echo.
@@ -2255,13 +2247,13 @@ echo.
 
 
 
-echo ==========(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%)========== >>%virlog%
+echo ==========(DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%)========== >>"%virlog%"
 cls
 
 echo.
 echo.
 
-type "%virvar%mbam.var" >>%virlog%
+type "%virvar%mbam.var" >>"%virlog%"
 cls
 
 echo.
@@ -2276,7 +2268,7 @@ set name=Quick Summary
 set /p answer=
 echo Initial
 set /p initial=
-echo (%initial%) %name%: %answer% >>%virlog%
+echo (%initial%) %name%: %answer% >>"%virlog%"
 cls
 
 
@@ -2298,12 +2290,12 @@ echo.
 for /f "delims=" %%x in (%virvar%first.name.var) do set "first.name=%%x"
 for /f "delims=" %%x in (%virvar%last.name.var) do set "last.name=%%x"
 start chrome.exe -incognito --new-window "https://lansend.lmi.net/tt/search.php?go=Search&other=ACR+%first.name%+%last.name%&status=&users=&queues=&types="                                          
-Type %virlog% | "%virapp%clip.exe"
+Type "%virlog%" | "%virapp%clip.exe"
 goto main.menu
 
 :clear
 echo clear >%virvar%resume.var
-del %virlog%
+del "%virlog%"
 goto main.menu
 
 :set.job.number
@@ -2323,7 +2315,7 @@ set /p note=
 echo Initial
 set /p initial=
 
-echo (%initial%) Note:%note% >>%virlog%
+echo (%initial%) Note:%note% >>"%virlog%"
 goto main.menu
 
 :admin.tools
@@ -2339,7 +2331,7 @@ echo Invoice #: %job.number%
 echo ========================================
 if exist %virvar%resume.var set /p resume=<%virvar%resume.var
 if exist %virvar%resume.var echo Last Run: %resume%
-IF NOT EXIST "c:\acr\%logname%.txt" goto system.specs
+IF NOT EXIST "%virlog%" goto system.specs
 echo.
 echo 1 View Log File
 echo 2 Set as a Workstation
@@ -2374,38 +2366,30 @@ goto admin.tools
 
 :hd.health
 cls
-echo hd.health >%virvar%resume.var
 echo HD HEALTH
-echo 1 Hard Disk Sentinel (or other quick test)
-echo 2 Long Diagnostic Test (preferrably Seatools or WD Diag)
+echo 1 Quick Test
+echo 2 Long Diagnostic Test
 echo 3 This is a new hard drive
 echo 4 Ask me later
 set /p choice="Enter Choice: "
 
-if %choice% == 1 goto hd.sentinel
+if %choice% == 1 goto hd.quick
 if %choice% == 2 goto hd.long
 if %choice% == 3 goto hd.new
-goto main.menu
+goto resume
 
-:hd.sentinel
-echo Percent: _ _ _ %%
-set /p percent=
-echo %percent% >%virvar%hdsentinel.percent.var
+:hd.quick
+echo HD Status
+set /p hd.status=
+echo %hd.status% >%virvar%hd.status.var
 echo Initial
 set /p initial=
-echo. >>%virlog%
-echo HD Health >>%virlog%
-echo ======================================== >>%virlog%
-echo (%initial%) HD Sentinel Health Percentage:%percent% %% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo. >>"%virlog%"
+echo HD Health >>"%virlog%"
+echo ======================================== >>"%virlog%"
+echo (%initial%) Quick Test Status: %hd.status% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 
-echo What is the health status from HD Sentinel?
-set /p status=
-echo %status% >%virvar%hdsentinel.status.var
-echo Initial
-set /p initial=
-echo (%initial%) HD Sentinel Health Status: %status% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
-cls
 goto finished.hd.health
 
 :hd.long
@@ -2414,7 +2398,7 @@ set /p diagnostic=
 echo %diagnostic% >%virvar%long.hd.diag.var 
 echo Initial
 set /p initial=
-echo (%initial%) HD Diagnostic: %diagnostic% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>%virlog%
+echo (%initial%) HD Diagnostic: %diagnostic% (DATE: %date% %time:~0,-6% USER:"%username%" %windows.mode%) >>"%virlog%"
 cls
 goto finished.hd.health
 
@@ -2465,7 +2449,7 @@ if exist %virvar%ram.var for /f "delims=" %%x in (%virvar%ram.var) do set "ram=%
 echo RAM:%ram%
 if exist %virvar%os.free.space.var for /f "delims=" %%x in (%virvar%os.free.space.var) do set "free.space=%%x"
 echo Free Space:%free.space% %%
-if exist %virvar%avtype.var for /f "delims=" %%x in (%virvar%avtype.var) do set "av.type=%%x"
+if exist %virvar%av.type.var for /f "delims=" %%x in (%virvar%av.type.var) do set "av.type=%%x"
 echo AV:%av.type%
 if exist %virvar%backup.system.var for /f "delims=" %%x in (%virvar%backup.system.var) do set "backup.system=%%x"
 echo Backup:%backup.system%

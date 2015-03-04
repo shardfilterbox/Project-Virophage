@@ -2,8 +2,14 @@ REM ===== START HEADER =====
 @echo off
 color 4f
 sset virdir=C:\acr\
+
+::Set Log Name
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"
-set logname=ACR%job.number%Log
+for /f "delims=" %%x in (%virvar%first.name.var) do set "first.name=%%x"
+for /f "delims=" %%x in (%virvar%last.name.var) do set "last.name=%%x"
+set logname=ACR%first.name%%last.name%%job.number%
+set virlog="c:\acr\%logname%.txt"
+
 set virapp=%virdir%app\
 set virbat=%virdir%bat\
 set virzip=%virdir%zip\

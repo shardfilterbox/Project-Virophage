@@ -12,6 +12,7 @@ set window.name=%~nx0
 CALL c:\acr\bat\header.bat %~nx0
 
 set Virophage.Source = %~dp0
+echo %~dp0> c:\acr\var\source.var
 set virdir=C:\acr\
 set virver=v100
 for /f "delims=" %%x in (%virvar%job.number.var) do set "job.number=%%x"

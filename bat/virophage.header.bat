@@ -25,7 +25,7 @@ set virzip=%virdir%zip\
 set virvar=%virdir%var\
 
 :set.log.name
-set logname=ACR %first.name% %last.name% Q%job.number% Log
+set logname=ACR%first.name%%last.name%%job.number%
 set virlog="c:\acr\%logname%.txt"
 
 

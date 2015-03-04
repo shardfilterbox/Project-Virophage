@@ -25,6 +25,9 @@ echo What is the customer's last name? (spelling is important)
 set /p last.name=
 echo %last.name%>%virvar%last.name.var
 
+set logname=ACR%first.name%%last.name%%job.number%
+echo ACR%first.name%%last.name%%job.number% >>%virlog%
+
 if exist "c:\acr\var\alpha.var" start "" "C:\acr\bat\alphasetup.lnk"
 if not exist "c:\acr\var\alpha.var" start "" "C:\acr\virophage.lnk"
 
