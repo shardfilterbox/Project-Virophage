@@ -8,11 +8,21 @@ CALL "c:\acr\bat\virophage.header.bat"
 
 echo Otto Running
 
-
+::Windows update
+echo Performing windows updates...
+start /min "" "c:\acr\bat\windows.update.bat"
+echo (0110) Performed some windows updates (DATE: %date% %time:~0,-6% USER:%USERNAME% %windows.mode%) >> c:\acr\log\0110.log
 
 ::Pull Logs
 xcopy "%userprofile%\AppData\Local\Temp\SAS_SelfExtract\Logs" "c:\acr\log" /dsiy
 
+:jrt.log
+set jrt.var=jrt DATE %date% TIME %time:~0,-6%
+set jrt.var=%jrt.var::= %
+set jrt.var=%jrt.var:/= %
+echo %jrt.var%
+if exist "%userprofile%\desktop\jrt.txt" move "%userprofile%\desktop\jrt.txt" "c:\acr\log\"
+ren "c:\acr\log\jrt.txt" "%jrt.var%.txt"
 
 ::Copying system32 links...
 echo Copying system32 links...
@@ -54,10 +64,6 @@ start /w wmic product where "name='SafeFinder Smartbar'" call uninstall /nointer
 ::Remove Bloatware
 start /min /wait "" "c:\acr\bat\bloatware.bat"
 
-::Windows update
-echo Performing windows updates...
-start /min /wait "" "c:\acr\bat\windows.update.bat"
-echo (0110) Performed some windows updates (DATE: %date% %time:~0,-6% USER:%USERNAME% %windows.mode%) >> c:\acr\log\0110.log
 
 
 
