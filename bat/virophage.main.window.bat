@@ -2366,6 +2366,7 @@ goto admin.tools
 
 :hd.health
 cls
+start "" "C:\acr\app\tls\DiskInfo.exe"
 echo HD HEALTH
 echo 1 Quick Test
 echo 2 Long Diagnostic Test

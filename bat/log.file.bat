@@ -46,6 +46,7 @@ goto check.for.main
 
 :if.not.xp
 Timeout 10 >nul
+pause
 
 :check.for.main
 TASKLIST /v | find "virophage.main.window.bat" >nul
